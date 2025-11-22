@@ -3,10 +3,10 @@ import logging
 
 from fastapi import FastAPI, Request
 from telegram import Update
-from telegram.ext import Application, ApplicationBuilder
+from telegram.ext import Application
 
 import config
-from bot import post_init, main as local_main
+from bot import build_application as build_bot_application, main as local_main
 
 logger = logging.getLogger(__name__)
 
@@ -16,17 +16,18 @@ telegram_app: Application | None = None
 
 
 async def build_application() -> Application:
+    """Webhook rejimi uchun Application ni bot.py dagi build_application yordamida yaratadi.
+
+    Shu tariqa lokal polling va webhook rejimlari bir xil handlerlar to'plamidan
+    foydalanadi.
+    """
+
     if not getattr(config, "TELEGRAM_BOT_TOKEN", None):
         raise RuntimeError(
             "TELEGRAM_BOT_TOKEN config.py ichida o'rnatilmagan."
         )
 
-    application = (
-        ApplicationBuilder()
-        .token(config.TELEGRAM_BOT_TOKEN)
-        .post_init(post_init)
-        .build()
-    )
+    application = build_bot_application(config.TELEGRAM_BOT_TOKEN)
     await application.initialize()
     await application.start()
     return application
