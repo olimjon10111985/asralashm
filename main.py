@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 from telegram import Update
 from telegram.ext import Application
 
@@ -61,6 +62,22 @@ async def telegram_webhook(request: Request):
     update = Update.de_json(data, telegram_app.bot)
     await telegram_app.process_update(update)
     return {"ok": True}
+
+
+@app.get("/download-db")
+async def download_db():
+    """SQLite bazasini fayl sifatida yuklab beruvchi endpoint.
+
+    Eslatma: Bu endpointni faqat vaqtincha backup olish uchun ishlating va
+    keyinchalik xavfsizlik uchun olib tashlang yoki cheklang.
+    """
+
+    db_path = config.DATABASE_PATH
+    return FileResponse(
+        path=db_path,
+        filename="database.db",
+        media_type="application/octet-stream",
+    )
 
 
 # Lokal test uchun: agar bu faylni bevosita ishga tushirsak, eski polling rejimidan foydalanamiz.
