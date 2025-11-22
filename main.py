@@ -1,7 +1,8 @@
 import asyncio
 import logging
+import os
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import FileResponse
 from telegram import Update
 from telegram.ext import Application
@@ -73,6 +74,15 @@ async def download_db():
     """
 
     db_path = config.DATABASE_PATH
+
+    # Agar asosiy yo'l bo'yicha fayl topilmasa, eski nisbiy yo'lni ham tekshirib ko'ramiz.
+    if not os.path.exists(db_path):
+        fallback_path = "database.db"
+        if os.path.exists(fallback_path):
+            db_path = fallback_path
+        else:
+            raise HTTPException(status_code=404, detail="Database file not found")
+
     return FileResponse(
         path=db_path,
         filename="database.db",
