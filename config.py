@@ -19,8 +19,9 @@ REQUIRED_CHANNEL_ID: str = os.getenv("REQUIRED_CHANNEL_ID", "@asralashm")
 # AI rejimi: "stub" yoki "groq" (default: groq)
 AI_MODE: str = os.getenv("AI_MODE", "groq")
 
-# Mahalliy SQLite bazasi yo'li
-DATABASE_PATH: str = os.getenv("DATABASE_PATH", "database.db")
+# Mahalliy SQLite bazasi yo'li.
+# Railway uchun /data ichiga volume ulab, DATABASE_PATH ni /data/database.db qilib ishlatish tavsiya etiladi.
+DATABASE_PATH: str = os.getenv("DATABASE_PATH", "/data/database.db")
 
 # Groq API sozlamalari (OpenAI chat/completions formatida)
 GROQ_API_BASE: str = os.getenv(
