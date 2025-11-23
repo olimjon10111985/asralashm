@@ -45,9 +45,8 @@ async def generate_reply_stub(profile: Dict[str, Any], entries: List[Dict[str, A
             diary_texts.append(formatted)
 
         if diary_texts:
-            # Oxirgi kundalik matnlaridan parchalar olamiz (yozuvlar bazadan eng yangidan boshlab keladi)
-            recent_texts = diary_texts[:20]
-            diary = "\n- ".join(recent_texts)
+            # Barcha kundalik matnlarini kontekst sifatida beramiz (bazadan eng yangidan eski tomonga tartiblangan)
+            diary = "\n- ".join(diary_texts)
             diary_block = f"Kundalikdan parchalar (har bir qatorda sana bo'lishi mumkin):\n- {diary}\n\n"
         else:
             diary_block = "Kundalik hali bo'sh yoki faqat suhbat loglari bor.\n\n"
