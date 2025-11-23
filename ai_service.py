@@ -34,7 +34,6 @@ async def generate_reply_stub(profile: Dict[str, Any], entries: List[Dict[str, A
             if text_val.lower().startswith("suhbat:"):
                 continue
 
-            # Sanani matn boshiga qo'yamiz (faqat yil-oy-kun qismi yetarli)
             created_raw = (e.get("created_at") or "").strip()
             created_date = created_raw[:10] if created_raw else ""
             if created_date:
@@ -45,9 +44,18 @@ async def generate_reply_stub(profile: Dict[str, Any], entries: List[Dict[str, A
             diary_texts.append(formatted)
 
         if diary_texts:
-            # Barcha kundalik matnlarini kontekst sifatida beramiz (bazadan eng yangidan eski tomonga tartiblangan)
-            diary = "\n- ".join(diary_texts)
-            diary_block = f"Kundalikdan parchalar (har bir qatorda sana bo'lishi mumkin):\n- {diary}\n\n"
+            # Bo'laklarni raqamlab, modelga ichida eng moslarini tanlashni topshiramiz
+            numbered_lines = []
+            for idx, item in enumerate(diary_texts, start=1):
+                numbered_lines.append(f"[{idx}] {item}")
+
+            diary_block = (
+                "Quyida mening kundaligimdan raqamlangan bo'laklar berilgan. "
+                "Javob yozayotganda faqat savolga eng mos 3-5 ta bo'lakka tayangan holda gapir, "
+                "lekin raqamlarni tilga olma:\n"
+                + "\n".join(numbered_lines)
+                + "\n\n"
+            )
         else:
             diary_block = "Kundalik hali bo'sh yoki faqat suhbat loglari bor.\n\n"
     else:
@@ -101,7 +109,8 @@ async def generate_reply_stub(profile: Dict[str, Any], entries: List[Dict[str, A
             "So'kinma va qo'pol so'zlarni ishlatma, hatto foydalanuvchi shunday yozsa ham. Ohang samimiy, hurmatli va ozgina "
             "shaxsiy bo'lsin: xuddi yaqin inson bilan gaplashayotgandek. Har bir javob odatda 2–5 gapdan oshmasin. Biror so'zni "
             "yoki iborani ketma-ket bir necha marta takrorlama, 'menimcha, menimcha, menimcha' kabi looplar qilma. Savolga aniq, "
-            "tinch va qisqa javob ber, romandek uzun matn yozma."
+            "tinch va qisqa javob ber, romandek uzun matn yozma. Agar kundalik bo'laklari ko'p bo'lsa, faqat savolga eng mos 3-5 "
+            "xotiraga tayangan holda javob tuz, qolganlarini e'tiborsiz qoldir."
         )
 
         # Faqat ma'lum profillar (masalan, otaning niki) uchun ota-qiz ohangini qo'shamiz
