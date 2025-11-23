@@ -185,6 +185,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         f"Salom, {user.first_name}! Bu bot sizning ongingizni raqamlash va shaxsiy sunʼiy ong yaratish uchun.\n" \
         "Miyangizda bor fikrlar, xotiralar va tasavvurlaringizni yozing – shular asosida sizga o‘xshash raqamli ong shakllanadi.\n" \
+        "Sunʼiy ongingizni qanday qilib to‘g‘ri yozish haqida batafsil ko‘rsatma uchun /howto buyrug‘idan foydalanishingiz mumkin.\n" \
         "Quyidagi tugmalardan birini tanlab boshlang:",
         reply_markup=main_menu_keyboard(),
     )
@@ -201,6 +202,48 @@ async def about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "bo‘lsangiz, shunga yaqin ohangda. Maqsad — bugungi ongingizni raqamli xotira sifatida kelajak avlodlar va "
         "yaqinlaringiz uchun saqlab qolish."
     )
+    await update.message.reply_text(text, reply_markup=main_menu_keyboard())
+
+
+async def howto(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Foydalanuvchiga sunʼiy ongni to'g'ri yaratish bo'yicha ko'rsatma beradi."""
+
+    text = (
+        "Agar sen bu bot orqali o'zingning sunʼiy ongingni yaratmoqchi bo'lsang, iloji boricha to'liq, rost va aniq yozishga "
+        "harakat qil. Qanchalik aniq yozsang, keyinchalik sunʼiy ong shunchalik 'sen'ga o'xshab javob beradi.\n\n"
+
+        "1) Har doim 'men' deb yoz\n"
+        "Har doim birinchi shaxsda yoz: 'men ...man', 'men shunaqa odamman', 'men bunday vaziyatda odatda shunday qilaman'.\n"
+        "Masalan: 'Men Olimjonman. Tinmay o'ylaydigan, lekin biroz kamgap odamman.'\n\n"
+
+        "2) Mavzularni alohida yozuvlarga bo'l\n"
+        "Bir xabarda hammasini aralashtirma. Har mavzuni alohida yoz: 'Men va oilam', 'Mening ishxonam', 'Mening bolaligim', "
+        "'Bugun qilgan ishlarim', 'Mening qiziqishlarim' va hokazo. Har bir yozuv bitta mavzuni ochib bersin.\n\n"
+
+        "3) Sana va kontekst yoz\n"
+        "Imkon bo'lsa, sana va vaqtni ham qo'sh: '2025-11-23: bugun ertalab shunday bo'ldi...', 'Maktab davridagi xotiram: ...'. "
+        "Bu keyinchalik 'qachon nima bo'lgani'ni aniq ajratishga yordam beradi.\n\n"
+
+        "4) Vaziyatlarni yoz: bu vaziyatda men odatda nima qilaman?\n"
+        "Masalan: 'Agar charchasam, odatda telefonni chetga qo'yib, sukutda o'tiraman', 'Agar kimdir mendan maslahat so'rasa, "
+        "odatda shunday javob beraman: ...'. Shunda keyin kimdir sunʼiy ongingdan so'rasa, u xuddi sen kabi javob bera oladi.\n\n"
+
+        "5) Har xil odamlar bilan suhbat ohangini yoz\n"
+        "Masalan: 'Dadam bilan gaplashganda odatda jiddiy va hurmat bilan gapiraman', 'Do'stlarim bilan ko'proq hazil bilan "
+        "gapiraman'. Bu sunʼiy ongga ohangni to'g'ri ushlashga yordam beradi.\n\n"
+
+        "6) Haqiqiy xotiralaringni yoz\n"
+        "His-tuyg'ular, qo'rquv va orzular, kundalik odatlar haqida yoz. Qanchalik ko'p va halol yozsang, sunʼiy ong shunchalik "
+        "'jonli' bo'ladi.\n\n"
+
+        "7) Xavfsizlik\n"
+        "Pasport, karta raqami, parol, aniq manzil kabi maxfiy ma'lumotlarni yozma. Bu botga his-tuyg'ular, xotiralar va hayotiy "
+        "qarashlar kerak, texnik maxfiylik emas.\n\n"
+
+        "Qisqasi: inson xotirasida bor narsalarni tushunarli qilib yozsang, sunʼiy ong ham shu xotiraga yaqin bo'ladi va "
+        "vaziyatlarda xuddi sen bo'lgandek javob berishga harakat qiladi."
+    )
+
     await update.message.reply_text(text, reply_markup=main_menu_keyboard())
 
 
@@ -760,6 +803,7 @@ def build_application(token: str) -> Application:
     application.add_handler(conv_handler)
     application.add_handler(CommandHandler("about", about))
     application.add_handler(CommandHandler("stats", stats))
+    application.add_handler(CommandHandler("howto", howto))
     # Matn bo'lmagan barcha xabarlar uchun umumiy ogohlantirish handleri
     application.add_handler(MessageHandler(~filters.TEXT, non_text_warning))
 
