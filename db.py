@@ -3,7 +3,14 @@ from typing import Optional, List, Dict, Any
 
 from rag_client import chroma_upsert
 
-DB_PATH = "database.db"
+try:
+    import config  # type: ignore
+except ImportError:
+    config = None
+
+# Asosiy bazaning yo'li config.DATABASE_PATH dan olinadi (masalan, Railway'da /data/database.db).
+# Agar config yo'q bo'lsa, lokal ishlatish uchun "database.db" dan foydalanamiz.
+DB_PATH = getattr(config, "DATABASE_PATH", "database.db") if config is not None else "database.db"
 
 
 async def init_db(db_path: str = DB_PATH) -> None:
