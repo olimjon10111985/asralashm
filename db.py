@@ -31,6 +31,14 @@ async def init_db(db_path: str = DB_PATH) -> None:
             );
             """
         )
+        # Eski bazalarda password_hash ustuni bo'lmagan bo'lishi mumkin.
+        # Bunday hollarda ro'yxatdan o'tishda INSERT xato bermasligi uchun
+        # ustunni migratsiya orqali qo'shib qo'yamiz.
+        try:
+            await db.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
+        except aiosqlite.OperationalError:
+            # Agar ustun allaqachon mavjud bo'lsa, xatoni e'tiborga olmaymiz.
+            pass
         await db.commit()
 
 
