@@ -3,6 +3,7 @@ from typing import List, Dict, Any
 import httpx
 
 import config
+from rag_client import chroma_query
 
 
 async def generate_reply_stub(profile: Dict[str, Any], entries: List[Dict[str, Any]], user_message: str) -> str:
@@ -44,18 +45,36 @@ async def generate_reply_stub(profile: Dict[str, Any], entries: List[Dict[str, A
             diary_texts.append(formatted)
 
         if diary_texts:
-            # Bo'laklarni raqamlab, modelga ichida eng moslarini tanlashni topshiramiz
-            numbered_lines = []
-            for idx, item in enumerate(diary_texts, start=1):
-                numbered_lines.append(f"[{idx}] {item}")
-
-            diary_block = (
+            # Asosiy holatda barcha bo'laklarni raqamlab beramiz
+            numbered_lines = [f"[{idx}] {item}" for idx, item in enumerate(diary_texts, start=1)]
+            base_block = (
                 "Quyida mening kundaligimdan raqamlangan bo'laklar berilgan. "
                 "Javob yozayotganda faqat savolga eng mos 3-5 ta bo'lakka tayangan holda gapir, "
                 "lekin raqamlarni tilga olma:\n"
                 + "\n".join(numbered_lines)
                 + "\n\n"
             )
+
+            # Agar Chroma servisi sozlangan bo'lsa, savol bo'yicha eng mos bo'laklarni so'rab olamiz
+            user_id_val = profile.get("id") if isinstance(profile, dict) else None
+            chroma_hits: List[Dict[str, Any]] = []
+            if user_id_val is not None and user_message.strip():
+                chroma_hits = await chroma_query(int(user_id_val), user_message, top_k=5)
+
+            if chroma_hits:
+                selected_lines: List[str] = []
+                for hit in chroma_hits:
+                    text_val = (hit.get("text") or "").strip()
+                    if text_val:
+                        selected_lines.append(f"- {text_val}")
+
+                diary_block = (
+                    "Kundalikdan eng mos deb topilgan parchalar (Chroma orqali):\n"
+                    + "\n".join(selected_lines)
+                    + "\n\n"
+                )
+            else:
+                diary_block = base_block
         else:
             diary_block = "Kundalik hali bo'sh yoki faqat suhbat loglari bor.\n\n"
     else:
