@@ -1,6 +1,8 @@
 import aiosqlite
 from typing import Optional, List, Dict, Any
 
+from rag_client import chroma_upsert
+
 DB_PATH = "database.db"
 
 
@@ -89,8 +91,31 @@ async def get_user_by_id(user_id: int, db_path: str = DB_PATH) -> Optional[Dict[
 
 async def add_entry(user_id: int, text: str, db_path: str = DB_PATH) -> None:
     async with aiosqlite.connect(db_path) as db:
-        await db.execute("INSERT INTO entries (user_id, text) VALUES (?, ?)", (user_id, text))
+        cursor = await db.execute(
+            "INSERT INTO entries (user_id, text) VALUES (?, ?)",
+            (user_id, text),
+        )
         await db.commit()
+
+        # Chroma servisiga ham yuborib qo'yamiz (agar CHROMA_BASE_URL sozlangan bo'lsa)
+        try:
+            entry_id = cursor.lastrowid
+        except Exception:
+            entry_id = None
+
+    # DB tranzaksiyasi tugagandan so'ng, Chroma'ga async tarzda sync qilamiz
+    if text.strip():
+        doc_id = f"user_{user_id}_{entry_id or 'unknown'}"
+        await chroma_upsert(
+            [
+                {
+                    "id": doc_id,
+                    "user_id": user_id,
+                    "text": text,
+                    "created_at": None,
+                }
+            ]
+        )
 
 
 async def get_entries_for_user(user_id: int, limit: Optional[int] = None, db_path: str = DB_PATH) -> List[Dict[str, Any]]:
