@@ -1,3 +1,4 @@
+import os
 import aiosqlite
 from typing import Optional, List, Dict, Any
 
@@ -14,6 +15,11 @@ DB_PATH = getattr(config, "DATABASE_PATH", "database.db") if config is not None 
 
 
 async def init_db(db_path: str = DB_PATH) -> None:
+    # Bazaning katalogi mavjud bo'lishini ta'minlaymiz (masalan, /data)
+    dir_name = os.path.dirname(db_path)
+    if dir_name:
+        os.makedirs(dir_name, exist_ok=True)
+
     async with aiosqlite.connect(db_path) as db:
         await db.execute(
             """
